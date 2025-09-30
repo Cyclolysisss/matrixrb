@@ -1,6 +1,8 @@
-# matrixeffect.rb
-# A matrix effect simulation in the terminal using Ruby (with green characters). and some other cool features like fading and bold characters. and more features like random bold characters, fading effect, and speed variation, then letting the user customize the effect..
-# When first launched, show the creator name and version number caracter by character for 3 seconds, then clear the screen and start the matrix effect.
+
+# MatrixRB
+# A terminal-based Matrix effect simulation in Ruby with advanced features.
+# Features include: green characters, fading, bold, random bold, speed variation, and user
+# customization.
 
 require 'io/console'
 require 'thread'
@@ -23,12 +25,13 @@ require 'uri'
 require 'json'
 
 # Constants
-VERSION = '1.0.0'
+VERSION = '1.0.1'
 CREATOR = 'Cyclolysis'
+PROGRAM_NAME = 'MatrixRB'
 DEFAULT_SPEED = 0.1
 DEFAULT_BOLD_PROBABILITY = 0.1
 DEFAULT_FADE_PROBABILITY = 0.05
-CHARACTER_SET = (' '..'~').to_a + (' '..'~').to_a.map(&:upcase) # Printable ASCII characters
+CHARACTER_SET = (('0'..'9').to_a + ('A'..'Z').to_a + ('a'..'z').to_a + ['@', '#', '$', '%', '&', '*', '+', '-', '=', '?', '!', '|', '/', ';', '.', ',', '`', '^']).shuffle # More matrix-like
 CLEAR_COMMAND = RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/ ? 'cls' : 'clear'
 MATRIX_COLOR = :green
 BOLD_COLOR = :light_green
@@ -46,9 +49,9 @@ MIN_COLUMNS = 20
 MAX_COLUMNS = 200
 MIN_ROWS = 10
 MAX_ROWS = 100
-DEFAULT_DURATION = nil # infinite
+DEFAULT_DURATION = nil 
 MIN_DURATION = 1
-MAX_DURATION = nil # infinite
+MAX_DURATION = nil 
 DEFAULT_BOLD_ENABLED = true
 DEFAULT_FADE_ENABLED = true
 DEFAULT_SPEED_VARIATION_ENABLED = true
@@ -169,61 +172,82 @@ def clear_screen
 rescue => e
   log_message("Error clearing screen: #{e.message}")
 end
-# Function to display the creator name and version number character by character
+# Function to display the program name, creator, and version character by character
 def display_intro
   clear_screen
-  intro_text = "Matrix Effect v#{VERSION} by #{CREATOR}, press 'o' for options"
+  intro_text = "#{PROGRAM_NAME} v#{VERSION} by #{CREATOR} | 'o' options"
   intro_text.each_char do |char|
-    print char.colorize(MATRIX_COLOR)
-    sleep(0.1)
+    print char.colorize(MATRIX_COLOR).bold
+    sleep(0.07)
   end
-  sleep(3)
+  sleep(2.5)
   clear_screen
 rescue => e
   log_message("Error displaying intro: #{e.message}")
 end
-# Function to initialize the character matrix
+# Function to initialize the character matrix and column drops
 def initialize_matrices
-  $character_matrix = Array.new($rows) { Array.new($columns) { CHARACTER_SET.sample } }
+  $character_matrix = Array.new($rows) { Array.new($columns) { ' ' } }
   $fade_matrix = Array.new($rows) { Array.new($columns, 0) }
   $bold_matrix = Array.new($rows) { Array.new($columns, false) }
+  $column_drops = Array.new($columns) { rand($rows) }
 rescue => e
   log_message("Error initializing matrices: #{e.message}")
 end
-# Function to update the character matrix
+# Function to update the character matrix with improved matrix effect
 def update_matrices
-  $rows.times do |row|
-    $columns.times do |col|
-      if rand < 0.1
-        $character_matrix[row][col] = CHARACTER_SET.sample
+  $columns.times do |col|
+    drop_row = $column_drops[col]
+    # Head of the drop
+    if drop_row < $rows
+      $character_matrix[drop_row][col] = CHARACTER_SET.sample
+      $fade_matrix[drop_row][col] = 0
+      $bold_matrix[drop_row][col] = true
+    end
+    # Fade the trail
+    (0...$rows).each do |row|
+      if row != drop_row
+        $fade_matrix[row][col] = [$fade_matrix[row][col] + 1, 4].min if $fade_enabled
+        $bold_matrix[row][col] = false
       end
-      if $fade_enabled && rand < $fade_probability
-        $fade_matrix[row][col] = [$fade_matrix[row][col] + 1, 3].min
-      else
-        $fade_matrix[row][col] = [$fade_matrix[row][col] - 1, 0].max
-      end
-      if $bold_enabled && rand < $bold_probability
-        $bold_matrix[row][col] = true
-      elsif $random_bold_enabled && rand < 0.05
-        $bold_matrix[row][col] = !$bold_matrix[row][col]
-      end
+    end
+    # Move drop down, with random reset
+    if rand < 0.02 || drop_row >= $rows + rand(5)
+      $column_drops[col] = 0
+    else
+      $column_drops[col] += 1
+    end
+  end
+  # Add some random bold/fade for extra effect
+  if $random_bold_enabled
+    ($rows * $columns * 0.02).to_i.times do
+      r, c = rand($rows), rand($columns)
+      $bold_matrix[r][c] = !$bold_matrix[r][c]
+    end
+  end
+  if $random_fade_enabled
+    ($rows * $columns * 0.01).to_i.times do
+      r, c = rand($rows), rand($columns)
+      $fade_matrix[r][c] = [$fade_matrix[r][c] + 1, 4].min
     end
   end
 rescue => e
   log_message("Error updating matrices: #{e.message}")
 end
-# Function to render the character matrix to the terminal
+# Function to render the character matrix to the terminal (improved effect)
 def render_matrices
   clear_screen
   output = ""
   $rows.times do |row|
     $columns.times do |col|
       char = $character_matrix[row][col]
-      if $fade_enabled && $fade_matrix[row][col] > 0
-        color = case $fade_matrix[row][col]
-                when 1 then FADE_COLOR
-                when 2 then :light_black
-                when 3 then :black
+      fade = $fade_matrix[row][col]
+      if $fade_enabled && fade > 0
+        color = case fade
+                when 1 then :light_green
+                when 2 then FADE_COLOR
+                when 3 then :light_black
+                when 4 then :black
                 else MATRIX_COLOR
                 end
       else
@@ -335,7 +359,7 @@ def main
     sleep(sleep_time)
   end
   clear_screen
-  puts "Matrix Effect terminated. Goodbye!"
+  puts "#{PROGRAM_NAME} terminated. Goodbye!"
 rescue => e
   log_message("Error in main function: #{e.message}")
 end
