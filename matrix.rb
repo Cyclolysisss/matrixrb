@@ -61,6 +61,8 @@ DEFAULT_RANDOM_FADE_ENABLED = true
 
 # Global Variables
 $stop = false
+$input_paused = false
+$pause_matrix = false
 $mutex = Mutex.new
 $columns = DEFAULT_COLUMNS
 $rows = DEFAULT_ROWS
@@ -277,12 +279,20 @@ end
 def handle_user_input
   Thread.new do
     loop do
+      # Pause input while in options menu
+      sleep(0.05) while $input_paused
       char = safe_getch
+      begin
+        puts "[DEBUG] getch received: #{char.inspect} (ord: #{char&.ord})"
+      rescue
+        puts "[DEBUG] getch received: #{char.inspect} (ord: N/A)"
+      end
       $mutex.synchronize do
-        if char == 'o'
+        if char && char.downcase == 'o'
           $pause_matrix = true
         elsif char == 'q'
           $stop = true
+          break
         end
       end
       break if $stop
@@ -335,28 +345,44 @@ def main
   $pause_matrix = false
   display_intro
   initialize_matrices
-  handle_user_input
+  # Remove input thread, handle input in main loop
   check_for_updates
   $start_time = Time.now
-  loop do
-    break if $stop
-    if $pause_matrix
-      show_options_menu
-      $pause_matrix = false
-      next
+  begin
+    STDIN.echo = false
+    STDIN.raw!
+    loop do
+      break if $stop
+      # Non-blocking input check
+      if IO.select([STDIN], nil, nil, 0.01)
+        char = STDIN.getc rescue nil
+        puts "[DEBUG] getch received: #{char.inspect} (ord: #{char&.ord})"
+        if char && char.downcase == 'o'
+          # Restore cooked mode for menu
+          STDIN.cooked! if STDIN.respond_to?(:cooked!)
+          show_options_menu
+          STDIN.raw! if STDIN.respond_to?(:raw!)
+        elsif char == 'q'
+          $stop = true
+          break
+        end
+      end
+      if $duration && (Time.now - $start_time) >= $duration
+        puts "\nDuration reached. Exiting..."
+        break
+      end
+      update_matrices
+      render_matrices
+      sleep_time = if $speed_variation_enabled
+                     rand($speed * 0.5..$speed * 1.5)
+                   else
+                     $speed
+                   end
+      sleep(sleep_time)
     end
-    if $duration && (Time.now - $start_time) >= $duration
-      puts "\nDuration reached. Exiting..."
-      break
-    end
-    update_matrices
-    render_matrices
-    sleep_time = if $speed_variation_enabled
-                   rand($speed * 0.5..$speed * 1.5)
-                 else
-                   $speed
-                 end
-    sleep(sleep_time)
+  ensure
+    STDIN.cooked! if STDIN.respond_to?(:cooked!)
+    STDIN.echo = true
   end
   clear_screen
   puts "#{PROGRAM_NAME} terminated. Goodbye!"
