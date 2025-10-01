@@ -27,7 +27,7 @@ class MatrixController
       require 'open-uri'
       latest_version = URI.open('https://raw.githubusercontent.com/Cyclolysisss/MatrixRB/main/VERSION').read.strip
       if latest_version != VERSION
-        @version_check_result = "New version available: #{latest_version} (you are using version v#{VERSION}). Visit https://github.com/Cyclolysisss/MatrixRB for more information and to update."
+        @version_check_result = "New version available: #{latest_version} (you are using version v#{VERSION}). Visit https://github.com/Cyclolysisss/MatrixRB (or run 'git pull' if you have used 'git clone') for more information and to update."
       end
     rescue
       
