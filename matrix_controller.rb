@@ -44,9 +44,85 @@ class MatrixController
         @model.update_matrices
         @view.render_matrix(@model)
         if @model.respond_to?(:debug_mode) && @model.debug_mode
+          require 'rbconfig'
+          os_type = RbConfig::CONFIG['host_os']
+          os_version = RUBY_PLATFORM
+          os_friendly = case os_type
+            when /mswin|mingw|cygwin/ then "Windows"
+            when /darwin/ then "macOS"
+            when /linux/ then "Linux"
+            else os_type
+          end
+          os_full_version = begin
+            if os_friendly == "Microsoft Windows"
+              require 'win32ole'
+              wmi = WIN32OLE.connect("winmgmts://")
+              os = wmi.ExecQuery("select * from Win32_OperatingSystem").each.first
+              "#{os.Caption} (Build #{os.BuildNumber})"
+            elsif os_friendly == "Apple macOS"
+              `sw_vers -productVersion`.strip
+            elsif os_friendly == "GNU/Linux"
+              if File.exist?('/etc/os-release')
+                File.read('/etc/os-release')[/PRETTY_NAME="([^"]+)"/, 1] || 'Linux'
+              else
+                'Linux'
+              end
+            else
+              os_version
+            end
+          rescue
+            os_version
+          end
+          sys_seconds = begin
+            if os_friendly == "Windows"
+              require 'win32ole'
+              wmi = WIN32OLE.connect("winmgmts://")
+              os = wmi.ExecQuery("select * from Win32_OperatingSystem").each.first
+              last_boot = os.LastBootUpTime
+              boot_time = Time.new(last_boot[0..3], last_boot[4..5], last_boot[6..7], last_boot[8..9], last_boot[10..11], last_boot[12..13])
+              (Time.now - boot_time).to_i
+            elsif os_friendly == "macOS" || os_friendly == "Linux"
+              if File.exist?('/proc/uptime')
+                IO.read('/proc/uptime').split[0].to_i
+              else
+                # fallback: try `uptime -s` (boot time)
+                boot = `uptime -s 2>/dev/null`.strip
+                if boot =~ /\d{4}-\d{2}-\d{2}/
+                  (Time.now - Time.parse(boot)).to_i
+                else
+                  0
+                end
+              end
+            else
+              0
+            end
+          rescue
+            0
+          end
+          def format_uptime(total)
+            years = total / (365*24*3600)
+            total %= (365*24*3600)
+            months = total / (30*24*3600)
+            total %= (30*24*3600)
+            weeks = total / (7*24*3600)
+            total %= (7*24*3600)
+            days = total / (24*3600)
+            total %= (24*3600)
+            hours = total / 3600
+            total %= 3600
+            mins = total / 60
+            secs = total % 60
+            "#{years}y #{months}mo #{weeks}w #{days}d %02d:%02d:%02d" % [hours, mins, secs]
+          end
+          prog_seconds = (Time.now - @start_time).to_i
           puts "[DEBUG] Terminal size: cols=#{@model.columns}, rows=#{@model.rows}"
           puts "[DEBUG] First row: #{@model.character_matrix[0].inspect}"
-        end 
+          puts "[DEBUG] OS: #{os_friendly}"
+          puts "[DEBUG] OS version: #{os_full_version}"
+          puts "[DEBUG] System uptime: #{format_uptime(sys_seconds)}"
+          puts "[DEBUG] Program uptime: #{format_uptime(prog_seconds)}"
+          puts "[DEBUG] Current menu: main loop"
+        end
         sleep_time = if @model.speed_variation_enabled
                        rand(@model.speed * 0.5..@model.speed * 1.5)
                      else
@@ -75,6 +151,7 @@ class MatrixController
         @stop = true
         break
       when 'w'
+        current_menu = 'save config menu'
         print "\nSave config to file (default: matrix_config.yml): "
         file = STDIN.gets&.chomp
         file = 'matrix_config.yml' if file.nil? || file.empty?
@@ -85,6 +162,7 @@ class MatrixController
           puts "Failed to save config: #{e.message}"
         end
       when 'l'
+        current_menu = 'load config menu'
         print "\nLoad config from file (default: matrix_config.yml): "
         file = STDIN.gets&.chomp
         file = 'matrix_config.yml' if file.nil? || file.empty?
@@ -102,6 +180,7 @@ class MatrixController
           puts "Failed to load config: #{e.message}"
         end
       when 's'
+        current_menu = 'set speed menu'
         print "\nNew speed (#{MatrixModel::MIN_SPEED}-#{MatrixModel::MAX_SPEED}, current: #{@model.speed}): "
         val = STDIN.gets&.chomp
         if val =~ /^\d*\.?\d+$/
@@ -116,6 +195,7 @@ class MatrixController
           puts "Invalid input."
         end
       when 'b'
+        current_menu = 'set bold probability menu'
         print "\nNew bold probability (#{MatrixModel::MIN_BOLD_PROBABILITY}-#{MatrixModel::MAX_BOLD_PROBABILITY}, current: #{@model.bold_probability}): "
         val = STDIN.gets&.chomp
         if val =~ /^\d*\.?\d+$/
@@ -130,6 +210,7 @@ class MatrixController
           puts "Invalid input."
         end
       when 'f'
+        current_menu = 'set fade probability menu'
         print "\nNew fade probability (#{MatrixModel::MIN_FADE_PROBABILITY}-#{MatrixModel::MAX_FADE_PROBABILITY}, current: #{@model.fade_probability}): "
         val = STDIN.gets&.chomp
         if val =~ /^\d*\.?\d+$/
@@ -144,6 +225,7 @@ class MatrixController
           puts "Invalid input."
         end
       when 'd'
+        current_menu = 'set duration menu'
         print "\nNew duration in seconds (#{MatrixModel::MIN_DURATION}-infinite, current: #{@model.duration || 'infinite'}): "
         val = STDIN.gets&.chomp
         if val =~ /^\d*\.?\d+$/
@@ -190,23 +272,30 @@ class MatrixController
 #        end
 #  -----------------------------------------------------------------------------------------------------------------------------------------------------------
       when 't'
+        current_menu = 'toggle bold menu'
         @model.bold_enabled = !@model.bold_enabled
         puts "Bold effect #{@model.bold_enabled ? 'enabled' : 'disabled'}."
       when 'g'
+        current_menu = 'toggle fade menu'
         @model.fade_enabled = !@model.fade_enabled
         puts "Fade effect #{@model.fade_enabled ? 'enabled' : 'disabled'}."
       when 'v'
+        current_menu = 'toggle speed variation menu'
         @model.speed_variation_enabled = !@model.speed_variation_enabled
         puts "Speed variation #{@model.speed_variation_enabled ? 'enabled' : 'disabled'}."
       when 'n'
+        current_menu = 'toggle random bold menu'
         @model.random_bold_enabled = !@model.random_bold_enabled
         puts "Random bold effect #{@model.random_bold_enabled ? 'enabled' : 'disabled'}."
       when 'm'
+        current_menu = 'toggle random fade menu'
         @model.random_fade_enabled = !@model.random_fade_enabled
         puts "Random fade effect #{@model.random_fade_enabled ? 'enabled' : 'disabled'}."
       when 'h'
+        current_menu = 'help menu'
         @view.display_help(@model)
       when 'u'
+        current_menu = 'update check menu'
         puts "\nChecking for updates..."
         begin
           require 'open-uri'
@@ -221,10 +310,12 @@ class MatrixController
           puts "Failed to check for updates: #{e.message}"
         end
       when 'x'
+        current_menu = 'reset menu'
         # Reset to defaults
         @model = MatrixModel.new
         puts "Settings reset."
       else
+        current_menu = 'unknown menu'
         puts "Unknown command. Type 'h' for help."
       end
       puts "Press Enter to continue..."
