@@ -39,7 +39,7 @@ class MatrixModel
   attr_reader :character_matrix, :fade_matrix, :bold_matrix, :column_drops
 
   CHARACTER_SET = (('0'..'9').to_a + ('A'..'Z').to_a + ('a'..'z').to_a + ['@', '#', '$', '%', '&', '*', '+', '-', '=', '?', '!', '|', '/', ';', '.', ',', '`', '^']).shuffle
-  MIN_SPEED = 0.01
+  MIN_SPEED = 0.05 # Increased minimum speed to reduce CPU usage on slow machines
   MAX_SPEED = 1.0
   MIN_BOLD_PROBABILITY = 0.0
   MAX_BOLD_PROBABILITY = 1.0

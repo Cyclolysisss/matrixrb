@@ -6,12 +6,19 @@ require_relative 'matrix_view'
 require 'io/console'
 
 class MatrixController
-  VERSION = '1.0.7'
+  VERSION = '1.1'
   CREATOR = 'Cyclolysis'
   PROGRAM_NAME = 'MatrixRB'
 
   def initialize
     @model = MatrixModel.new
+    # Try to auto-load config file if it exists, else use defaults
+    if File.exist?('matrix_config.yml')
+      loaded = @model.load_config('matrix_config.yml', VERSION)
+      unless loaded
+        puts "Failed to load configuration from matrix_config.yml. Using default settings."
+      end
+    end
     @view = MatrixView.new
     @stop = false
     @start_time = nil
@@ -306,6 +313,7 @@ class MatrixController
           if latest_version != VERSION
             puts "New version available: #{latest_version} (you are using version v#{VERSION})."
             puts "Visit https://github.com/Cyclolysisss/MatrixRB for more information and to update (an Internet connection is required)."
+            puts "Or run 'git pull' if you installed via 'git clone' (Still requires an Internet connection)."
           else
             puts "You are using the latest version (v#{VERSION})."
           end
