@@ -48,9 +48,9 @@ class MatrixController
           os_type = RbConfig::CONFIG['host_os']
           os_version = RUBY_PLATFORM
           os_friendly = case os_type
-            when /mswin|mingw|cygwin/ then "Windows"
-            when /darwin/ then "macOS"
-            when /linux/ then "Linux"
+            when /mswin|mingw|cygwin/ then "Microsoft Windows"
+            when /darwin/ then "Apple macOS"
+            when /linux/ then "GNU/Linux"
             else os_type
           end
           os_full_version = begin
