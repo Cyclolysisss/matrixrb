@@ -83,12 +83,12 @@ class MatrixView
 
 Matrix Effect Controls:
   q - Quit the program
+  w - Save config to file
+  l - Load config from file
   s - Set speed (#{MatrixModel::MIN_SPEED}-#{MatrixModel::MAX_SPEED}, current: #{model.speed})
   b - Set bold probability (#{MatrixModel::MIN_BOLD_PROBABILITY}-#{MatrixModel::MAX_BOLD_PROBABILITY}, current: #{model.bold_probability})
   f - Set fade probability (#{MatrixModel::MIN_FADE_PROBABILITY}-#{MatrixModel::MAX_FADE_PROBABILITY}, current: #{model.fade_probability})
   d - Set duration in seconds (#{MatrixModel::MIN_DURATION}-infinite, current: #{model.duration || 'infinite'})
-  c - Set number of columns (#{MatrixModel::MIN_COLUMNS}-#{MatrixModel::MAX_COLUMNS}, current: #{model.columns})
-  r - Set number of rows (#{MatrixModel::MIN_ROWS}-#{MatrixModel::MAX_ROWS}, current: #{model.rows})
   t - Toggle bold effect (#{model.bold_enabled ? 'enabled' : 'disabled'})
   g - Toggle fade effect (#{model.fade_enabled ? 'enabled' : 'disabled'})
   v - Toggle speed variation (#{model.speed_variation_enabled ? 'enabled' : 'disabled'})

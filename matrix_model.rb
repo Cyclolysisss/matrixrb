@@ -1,11 +1,41 @@
+require 'yaml'
 # matrix_model.rb
 # Model: Handles matrix state, settings, and update logic
 
 require 'securerandom'
 
 class MatrixModel
+  CONFIG_KEYS = %i[
+    speed bold_probability fade_probability duration
+    bold_enabled fade_enabled speed_variation_enabled
+    random_bold_enabled random_fade_enabled
+  ]
+
+  # Save current settings to a YAML file
+  def save_config(path = 'matrix_config.yml', version = nil)
+    data = {}
+    data[:version] = version if version
+    CONFIG_KEYS.each { |k| data[k] = self.send(k) }
+    File.write(path, YAML.dump(data))
+  end
+
+  # Load settings from a YAML file, check version, enable debug if present
+  def load_config(path = 'matrix_config.yml', current_version = nil)
+    return unless File.exist?(path)
+    data = YAML.load_file(path)
+    if data[:version] && current_version && Gem::Version.new(data[:version].to_s) > Gem::Version.new(current_version.to_s)
+      puts "Config version #{data[:version]} is newer than app version #{current_version}. Incompatible config."
+      return false
+    end
+    @debug_mode = !!data[:debug]
+    CONFIG_KEYS.each do |k|
+      self.send("#{k}=", data[k]) if data.key?(k)
+    end
+    initialize_matrices
+    true
+  end
   attr_accessor :columns, :rows, :speed, :bold_probability, :fade_probability, :duration,
-                :bold_enabled, :fade_enabled, :speed_variation_enabled, :random_bold_enabled, :random_fade_enabled
+                :bold_enabled, :fade_enabled, :speed_variation_enabled, :random_bold_enabled, :random_fade_enabled, :debug_mode
   attr_reader :character_matrix, :fade_matrix, :bold_matrix, :column_drops
 
   CHARACTER_SET = (('0'..'9').to_a + ('A'..'Z').to_a + ('a'..'z').to_a + ['@', '#', '$', '%', '&', '*', '+', '-', '=', '?', '!', '|', '/', ';', '.', ',', '`', '^']).shuffle

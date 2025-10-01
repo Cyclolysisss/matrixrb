@@ -6,7 +6,7 @@ require_relative 'matrix_view'
 require 'io/console'
 
 class MatrixController
-  VERSION = '1.0.6'
+  VERSION = '1.0.7'
   CREATOR = 'Cyclolysis'
   PROGRAM_NAME = 'MatrixRB'
 
@@ -43,6 +43,10 @@ class MatrixController
         end
         @model.update_matrices
         @view.render_matrix(@model)
+        if @model.respond_to?(:debug_mode) && @model.debug_mode
+          puts "[DEBUG] Terminal size: cols=#{@model.columns}, rows=#{@model.rows}"
+          puts "[DEBUG] First row: #{@model.character_matrix[0].inspect}"
+        end 
         sleep_time = if @model.speed_variation_enabled
                        rand(@model.speed * 0.5..@model.speed * 1.5)
                      else
@@ -70,6 +74,33 @@ class MatrixController
       when 'q'
         @stop = true
         break
+      when 'w'
+        print "\nSave config to file (default: matrix_config.yml): "
+        file = STDIN.gets&.chomp
+        file = 'matrix_config.yml' if file.nil? || file.empty?
+        begin
+          @model.save_config(file, VERSION)
+          puts "Config saved to #{file}."
+        rescue => e
+          puts "Failed to save config: #{e.message}"
+        end
+      when 'l'
+        print "\nLoad config from file (default: matrix_config.yml): "
+        file = STDIN.gets&.chomp
+        file = 'matrix_config.yml' if file.nil? || file.empty?
+        begin
+          loaded = @model.load_config(file, VERSION)
+          if loaded
+            puts "Config loaded from #{file}."
+            if @model.debug_mode
+              puts "[DEBUG] Debug mode enabled from config."
+              puts "[DEBUG] Model settings:"
+              puts @model.inspect
+            end
+          end
+        rescue => e
+          puts "Failed to load config: #{e.message}"
+        end
       when 's'
         print "\nNew speed (#{MatrixModel::MIN_SPEED}-#{MatrixModel::MAX_SPEED}, current: #{@model.speed}): "
         val = STDIN.gets&.chomp
@@ -126,36 +157,38 @@ class MatrixController
         else
           puts "Invalid input."
         end
-      when 'c'
-        print "\nNew columns (#{MatrixModel::MIN_COLUMNS}-#{MatrixModel::MAX_COLUMNS}, current: #{@model.columns}): "
-        val = STDIN.gets&.chomp
-        if val =~ /^\d+$/
-          new_col = val.to_i
-          if new_col >= MatrixModel::MIN_COLUMNS && new_col <= MatrixModel::MAX_COLUMNS
-            @model.columns = new_col
-            @model.initialize_matrices
-            puts "Columns updated: #{@model.columns}"
-          else
-            puts "Value out of bounds."
-          end
-        else
-          puts "Invalid input."
-        end
-      when 'r'
-        print "\nNew rows (#{MatrixModel::MIN_ROWS}-#{MatrixModel::MAX_ROWS}, current: #{@model.rows}): "
-        val = STDIN.gets&.chomp
-        if val =~ /^\d+$/
-          new_row = val.to_i
-          if new_row >= MatrixModel::MIN_ROWS && new_row <= MatrixModel::MAX_ROWS
-            @model.rows = new_row
-            @model.initialize_matrices
-            puts "Rows updated: #{@model.rows}"
-          else
-            puts "Value out of bounds."
-          end
-        else
-          puts "Invalid input."
-        end
+#  ------------------------------------------Removed because it is automatically set to match terminal size------------------------------------------
+#      when 'c'
+#        print "\nNew columns (#{MatrixModel::MIN_COLUMNS}-#{MatrixModel::MAX_COLUMNS}, current: #{@model.columns}): "
+#        val = STDIN.gets&.chomp
+#        if val =~ /^\d+$/
+#          new_col = val.to_i
+#          if new_col >= MatrixModel::MIN_COLUMNS && new_col <= MatrixModel::MAX_COLUMNS
+#            @model.columns = new_col
+#            @model.initialize_matrices
+#            puts "Columns updated: #{@model.columns}"
+#          else
+#            puts "Value out of bounds."
+#          end
+#        else
+#          puts "Invalid input."
+#        end
+#      when 'r'
+#        print "\nNew rows (#{MatrixModel::MIN_ROWS}-#{MatrixModel::MAX_ROWS}, current: #{@model.rows}): "
+#        val = STDIN.gets&.chomp
+#        if val =~ /^\d+$/
+#          new_row = val.to_i
+#          if new_row >= MatrixModel::MIN_ROWS && new_row <= MatrixModel::MAX_ROWS
+#            @model.rows = new_row
+#            @model.initialize_matrices
+#            puts "Rows updated: #{@model.rows}"
+#          else
+#            puts "Value out of bounds."
+#          end
+#        else
+#          puts "Invalid input."
+#        end
+#  -----------------------------------------------------------------------------------------------------------------------------------------------------------
       when 't'
         @model.bold_enabled = !@model.bold_enabled
         puts "Bold effect #{@model.bold_enabled ? 'enabled' : 'disabled'}."
