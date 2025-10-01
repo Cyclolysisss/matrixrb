@@ -7,14 +7,36 @@ class MatrixView
   MATRIX_COLOR = :green
   BOLD_COLOR = :light_green
   FADE_COLOR = :dark_green
-  CLEAR_COMMAND = Gem.win_platform? ? 'cls' : 'clear'
+  # Use ANSI escape codes to move cursor to top-left and avoid full screen clear
+  def move_cursor_top_left
+    print "\e[H"
+  end
 
   def clear_screen
-    system(CLEAR_COMMAND)
+    print "\e[2J\e[H"
+  end
+
+  def get_terminal_size
+    if Gem.win_platform?
+      require 'io/console'
+      IO.console.winsize.reverse # [columns, rows]
+    else
+      require 'io/console'
+      IO.console.winsize.reverse
+    end
+  rescue
+    [80, 24] # fallback
   end
 
   def render_matrix(model)
-    clear_screen
+    cols, rows = get_terminal_size
+    # Only update if size changed
+    if model.columns != cols || model.rows != rows
+      model.columns = cols
+      model.rows = rows
+      model.initialize_matrices
+    end
+    move_cursor_top_left
     output = ""
     model.rows.times do |row|
       model.columns.times do |col|
@@ -43,17 +65,20 @@ class MatrixView
   end
 
   def display_intro(version, creator, program_name)
-    clear_screen
+    move_cursor_top_left
+    print "\e[2J" # clear screen once at start
     intro_text = "#{program_name} v#{version} by #{creator} | 'o' options"
     intro_text.each_char do |char|
       print char.colorize(MATRIX_COLOR).bold
       sleep(0.07)
     end
     sleep(2.5)
-    clear_screen
+    move_cursor_top_left
+    print "\e[2J"
   end
 
   def display_help(model)
+    move_cursor_top_left
     puts <<-HELP
 
 Matrix Effect Controls:

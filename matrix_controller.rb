@@ -6,7 +6,7 @@ require_relative 'matrix_view'
 require 'io/console'
 
 class MatrixController
-  VERSION = '1.0.5'
+  VERSION = '1.0.6'
   CREATOR = 'Cyclolysis'
   PROGRAM_NAME = 'MatrixRB'
 
@@ -179,10 +179,10 @@ class MatrixController
           require 'open-uri'
           latest_version = URI.open('https://raw.githubusercontent.com/Cyclolysisss/MatrixRB/main/VERSION').read.strip
           if latest_version != VERSION
-            puts "New version available: #{latest_version} (you are using version #{VERSION})."
+            puts "New version available: #{latest_version} (you are using version v#{VERSION})."
             puts "Visit https://github.com/Cyclolysisss/MatrixRB for more information and to update (an Internet connection is required)."
           else
-            puts "You are using the latest version (#{VERSION})."
+            puts "You are using the latest version (v#{VERSION})."
           end
         rescue => e
           puts "Failed to check for updates: #{e.message}"
