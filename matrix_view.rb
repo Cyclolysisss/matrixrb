@@ -64,7 +64,7 @@ class MatrixView
     print output
   end
 
-  def display_intro(version, creator, program_name)
+  def display_intro(version, creator, program_name, version_check_result = nil)
     move_cursor_top_left
     print "\e[2J" # clear screen once at start
     intro_text = "#{program_name} v#{version} by #{creator} | 'o' options"
@@ -72,7 +72,12 @@ class MatrixView
       print char.colorize(MATRIX_COLOR).bold
       sleep(0.07)
     end
-    sleep(2.5)
+    if version_check_result
+      puts "\n\n" + version_check_result.to_s
+      sleep(3)
+    else
+      sleep(2.5)
+    end
     move_cursor_top_left
     print "\e[2J"
   end

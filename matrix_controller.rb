@@ -35,8 +35,8 @@ class MatrixController
   end
 
   def run
-    @view.display_intro(VERSION, CREATOR, PROGRAM_NAME)
-  puts @version_check_result if @version_check_result
+    # Show intro and version check result (if any) together
+    @view.display_intro(VERSION, CREATOR, PROGRAM_NAME, @version_check_result)
     @model.initialize_matrices
     @start_time = Time.now
     begin
