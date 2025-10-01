@@ -85,7 +85,7 @@ Matrix Effect Controls:
   q - Quit the program
   w - Save config to file
   l - Load config from file
-  s - Set speed (#{MatrixModel::MIN_SPEED}-#{MatrixModel::MAX_SPEED}, current: #{model.speed}) (WARNING: very low speeds may cause high CPU usage if your computer is lagging I suggest increasing speed, for slower machines I recommend not to set speed below 0.05)
+  s - Set speed (#{MatrixModel::MIN_SPEED}-#{MatrixModel::MAX_SPEED}, current: #{model.speed}) (WARNING: very low speeds may cause high CPU usage if your computer is lagging I suggest increasing speed, for slower machines I recommend not to set speed below 0.5)
   b - Set bold probability (#{MatrixModel::MIN_BOLD_PROBABILITY}-#{MatrixModel::MAX_BOLD_PROBABILITY}, current: #{model.bold_probability})
   f - Set fade probability (#{MatrixModel::MIN_FADE_PROBABILITY}-#{MatrixModel::MAX_FADE_PROBABILITY}, current: #{model.fade_probability})
   d - Set duration in seconds (#{MatrixModel::MIN_DURATION}-infinite, current: #{model.duration || 'infinite'})
