@@ -62,7 +62,7 @@ class MatrixController
     loop do
       @view.clear_screen
       @view.display_help(@model)
-      puts "\nEntrez une commande (ou appuyez sur Entrée pour revenir à la matrice) :"
+      puts "\nEnter a command (or press Enter to return to the matrix):"
       print "> "
       input = STDIN.gets&.chomp
       break if input.nil? || input.empty?
@@ -71,130 +71,130 @@ class MatrixController
         @stop = true
         break
       when 's'
-        print "\nNouvelle vitesse (#{MatrixModel::MIN_SPEED}-#{MatrixModel::MAX_SPEED}, actuel: #{@model.speed}): "
+        print "\nNew speed (#{MatrixModel::MIN_SPEED}-#{MatrixModel::MAX_SPEED}, current: #{@model.speed}): "
         val = STDIN.gets&.chomp
         if val =~ /^\d*\.?\d+$/
           new_speed = val.to_f
           if new_speed >= MatrixModel::MIN_SPEED && new_speed <= MatrixModel::MAX_SPEED
             @model.speed = new_speed
-            puts "Vitesse mise à jour: #{@model.speed}"
+            puts "Speed updated: #{@model.speed}"
           else
-            puts "Valeur hors limites."
+            puts "Value out of bounds."
           end
         else
-          puts "Entrée invalide."
+          puts "Invalid input."
         end
       when 'b'
-        print "\nNouvelle probabilité bold (#{MatrixModel::MIN_BOLD_PROBABILITY}-#{MatrixModel::MAX_BOLD_PROBABILITY}, actuel: #{@model.bold_probability}): "
+        print "\nNew bold probability (#{MatrixModel::MIN_BOLD_PROBABILITY}-#{MatrixModel::MAX_BOLD_PROBABILITY}, current: #{@model.bold_probability}): "
         val = STDIN.gets&.chomp
         if val =~ /^\d*\.?\d+$/
           new_bold = val.to_f
           if new_bold >= MatrixModel::MIN_BOLD_PROBABILITY && new_bold <= MatrixModel::MAX_BOLD_PROBABILITY
             @model.bold_probability = new_bold
-            puts "Probabilité bold mise à jour: #{@model.bold_probability}"
+            puts "Bold probability updated: #{@model.bold_probability}"
           else
-            puts "Valeur hors limites."
+            puts "Value out of bounds."
           end
         else
-          puts "Entrée invalide."
+          puts "Invalid input."
         end
       when 'f'
-        print "\nNouvelle probabilité fade (#{MatrixModel::MIN_FADE_PROBABILITY}-#{MatrixModel::MAX_FADE_PROBABILITY}, actuel: #{@model.fade_probability}): "
+        print "\nNew fade probability (#{MatrixModel::MIN_FADE_PROBABILITY}-#{MatrixModel::MAX_FADE_PROBABILITY}, current: #{@model.fade_probability}): "
         val = STDIN.gets&.chomp
         if val =~ /^\d*\.?\d+$/
           new_fade = val.to_f
           if new_fade >= MatrixModel::MIN_FADE_PROBABILITY && new_fade <= MatrixModel::MAX_FADE_PROBABILITY
             @model.fade_probability = new_fade
-            puts "Probabilité fade mise à jour: #{@model.fade_probability}"
+            puts "Fade probability updated: #{@model.fade_probability}"
           else
-            puts "Valeur hors limites."
+            puts "Value out of bounds."
           end
         else
-          puts "Entrée invalide."
+          puts "Invalid input."
         end
       when 'd'
-        print "\nNouvelle durée en secondes (#{MatrixModel::MIN_DURATION}-infinite, actuel: #{@model.duration || 'infinite'}): "
+        print "\nNew duration in seconds (#{MatrixModel::MIN_DURATION}-infinite, current: #{@model.duration || 'infinite'}): "
         val = STDIN.gets&.chomp
         if val =~ /^\d*\.?\d+$/
           new_dur = val.to_f
           if new_dur >= MatrixModel::MIN_DURATION
             @model.duration = new_dur
-            puts "Durée mise à jour: #{@model.duration}"
+            puts "Duration updated: #{@model.duration}"
           else
-            puts "Valeur hors limites."
+            puts "Value out of bounds."
           end
         else
-          puts "Entrée invalide."
+          puts "Invalid input."
         end
       when 'c'
-        print "\nNouvelles colonnes (#{MatrixModel::MIN_COLUMNS}-#{MatrixModel::MAX_COLUMNS}, actuel: #{@model.columns}): "
+        print "\nNew columns (#{MatrixModel::MIN_COLUMNS}-#{MatrixModel::MAX_COLUMNS}, current: #{@model.columns}): "
         val = STDIN.gets&.chomp
         if val =~ /^\d+$/
           new_col = val.to_i
           if new_col >= MatrixModel::MIN_COLUMNS && new_col <= MatrixModel::MAX_COLUMNS
             @model.columns = new_col
             @model.initialize_matrices
-            puts "Colonnes mises à jour: #{@model.columns}"
+            puts "Columns updated: #{@model.columns}"
           else
-            puts "Valeur hors limites."
+            puts "Value out of bounds."
           end
         else
-          puts "Entrée invalide."
+          puts "Invalid input."
         end
       when 'r'
-        print "\nNouvelles lignes (#{MatrixModel::MIN_ROWS}-#{MatrixModel::MAX_ROWS}, actuel: #{@model.rows}): "
+        print "\nNew rows (#{MatrixModel::MIN_ROWS}-#{MatrixModel::MAX_ROWS}, current: #{@model.rows}): "
         val = STDIN.gets&.chomp
         if val =~ /^\d+$/
           new_row = val.to_i
           if new_row >= MatrixModel::MIN_ROWS && new_row <= MatrixModel::MAX_ROWS
             @model.rows = new_row
             @model.initialize_matrices
-            puts "Lignes mises à jour: #{@model.rows}"
+            puts "Rows updated: #{@model.rows}"
           else
-            puts "Valeur hors limites."
+            puts "Value out of bounds."
           end
         else
-          puts "Entrée invalide."
+          puts "Invalid input."
         end
       when 't'
         @model.bold_enabled = !@model.bold_enabled
-        puts "Effet bold #{@model.bold_enabled ? 'activé' : 'désactivé'}."
+        puts "Bold effect #{@model.bold_enabled ? 'enabled' : 'disabled'}."
       when 'g'
         @model.fade_enabled = !@model.fade_enabled
-        puts "Effet fade #{@model.fade_enabled ? 'activé' : 'désactivé'}."
+        puts "Fade effect #{@model.fade_enabled ? 'enabled' : 'disabled'}."
       when 'v'
         @model.speed_variation_enabled = !@model.speed_variation_enabled
-        puts "Variation vitesse #{@model.speed_variation_enabled ? 'activée' : 'désactivée'}."
+        puts "Speed variation #{@model.speed_variation_enabled ? 'enabled' : 'disabled'}."
       when 'n'
         @model.random_bold_enabled = !@model.random_bold_enabled
-        puts "Effet bold aléatoire #{@model.random_bold_enabled ? 'activé' : 'désactivé'}."
+        puts "Random bold effect #{@model.random_bold_enabled ? 'enabled' : 'disabled'}."
       when 'm'
         @model.random_fade_enabled = !@model.random_fade_enabled
-        puts "Effet fade aléatoire #{@model.random_fade_enabled ? 'activé' : 'désactivé'}."
+        puts "Random fade effect #{@model.random_fade_enabled ? 'enabled' : 'disabled'}."
       when 'h'
         @view.display_help(@model)
       when 'u'
-        puts "\nVérification des mises à jour..."
+        puts "\nChecking for updates..."
         begin
           require 'open-uri'
-          latest_version = URI.open('https://raw.githubusercontent.com/Cyclolysis/MatrixRB/main/VERSION').read.strip
+          latest_version = URI.open('https://raw.githubusercontent.com/Cyclolysisss/MatrixRB/main/VERSION').read.strip
           if latest_version != VERSION
-            puts "Nouvelle version disponible : #{latest_version} (vous utilisez la version #{VERSION})."
-            puts "Visitez https://github.com/Cyclolysis/MatrixRB pour plus d'informations et pour mettre à jour (une connexion Internet est requise)."
+            puts "New version available: #{latest_version} (you are using version #{VERSION})."
+            puts "Visit https://github.com/Cyclolysisss/MatrixRB for more information and to update (an Internet connection is required)."
           else
-            puts "Vous utilisez la dernière version (#{VERSION})."
+            puts "You are using the latest version (#{VERSION})."
           end
         rescue => e
-          puts "Échec de la vérification des mises à jour : #{e.message}"
+          puts "Failed to check for updates: #{e.message}"
         end
       when 'x'
         # Reset to defaults
         @model = MatrixModel.new
-        puts "Paramètres réinitialisés."
+        puts "Settings reset."
       else
-        puts "Commande inconnue. Tapez 'h' pour l'aide."
+        puts "Unknown command. Type 'h' for help."
       end
-      puts "Appuyez sur Entrée pour continuer..."
+      puts "Press Enter to continue..."
       STDIN.gets
     end
   end
