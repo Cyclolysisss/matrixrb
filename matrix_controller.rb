@@ -6,7 +6,7 @@ require_relative 'matrix_view'
 require 'io/console'
 
 class MatrixController
-  VERSION = '1.0.1'
+  VERSION = '1.0.5'
   CREATOR = 'Cyclolysis'
   PROGRAM_NAME = 'MatrixRB'
 
@@ -173,6 +173,20 @@ class MatrixController
         puts "Effet fade aléatoire #{@model.random_fade_enabled ? 'activé' : 'désactivé'}."
       when 'h'
         @view.display_help(@model)
+      when 'u'
+        puts "\nVérification des mises à jour..."
+        begin
+          require 'open-uri'
+          latest_version = URI.open('https://raw.githubusercontent.com/Cyclolysis/MatrixRB/main/VERSION').read.strip
+          if latest_version != VERSION
+            puts "Nouvelle version disponible : #{latest_version} (vous utilisez la version #{VERSION})."
+            puts "Visitez https://github.com/Cyclolysis/MatrixRB pour plus d'informations et pour mettre à jour (une connexion Internet est requise)."
+          else
+            puts "Vous utilisez la dernière version (#{VERSION})."
+          end
+        rescue => e
+          puts "Échec de la vérification des mises à jour : #{e.message}"
+        end
       when 'x'
         # Reset to defaults
         @model = MatrixModel.new

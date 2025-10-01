@@ -70,7 +70,7 @@ Matrix Effect Controls:
   n - Toggle random bold effect (#{model.random_bold_enabled ? 'enabled' : 'disabled'})
   m - Toggle random fade effect (#{model.random_fade_enabled ? 'enabled' : 'disabled'})
   h - Display this help message
-  u - Check for updates
+  u - Check for updates (Current version : #{MatrixController::VERSION})
   x - Reset settings to original values
 
 Press the corresponding key to execute the command.
