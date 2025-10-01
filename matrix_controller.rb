@@ -84,14 +84,17 @@ class MatrixController
             elsif os_friendly == "Apple macOS" || os_friendly == "GNU/Linux"
               if File.exist?('/proc/uptime')
                 IO.read('/proc/uptime').split[0].to_i
-              else
-                # fallback: try `uptime -s` (boot time)
-                boot = `uptime -s 2>/dev/null`.strip
-                if boot =~ /\d{4}-\d{2}-\d{2}/
-                  (Time.now - Time.parse(boot)).to_i
+              elsif os_friendly == "Apple macOS"
+                # Use sysctl for boot time on macOS
+                boot = `sysctl -n kern.boottime 2>/dev/null`.strip
+                if boot =~ /sec = (\d+)/
+                  boot_time = Time.at($1.to_i)
+                  (Time.now - boot_time).to_i
                 else
                   0
                 end
+              else
+                0
               end
             else
               0
