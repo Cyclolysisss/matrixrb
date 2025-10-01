@@ -22,10 +22,21 @@ class MatrixController
     @view = MatrixView.new
     @stop = false
     @start_time = nil
+    @version_check_result = nil
+    begin
+      require 'open-uri'
+      latest_version = URI.open('https://raw.githubusercontent.com/Cyclolysisss/MatrixRB/main/VERSION').read.strip
+      if latest_version != VERSION
+        @version_check_result = "New version available: #{latest_version} (you are using version v#{VERSION}). Visit https://github.com/Cyclolysisss/MatrixRB for more information and to update."
+      end
+    rescue
+      
+    end
   end
 
   def run
     @view.display_intro(VERSION, CREATOR, PROGRAM_NAME)
+  puts @version_check_result if @version_check_result
     @model.initialize_matrices
     @start_time = Time.now
     begin
