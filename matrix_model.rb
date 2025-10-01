@@ -39,7 +39,7 @@ class MatrixModel
   attr_reader :character_matrix, :fade_matrix, :bold_matrix, :column_drops
 
   CHARACTER_SET = (('0'..'9').to_a + ('A'..'Z').to_a + ('a'..'z').to_a + ['@', '#', '$', '%', '&', '*', '+', '-', '=', '?', '!', '|', '/', ';', '.', ',', '`', '^']).shuffle
-  MIN_SPEED = 0.05 # Increased minimum speed to reduce CPU usage on slow machines
+  MIN_SPEED = 0.01
   MAX_SPEED = 1.0
   MIN_BOLD_PROBABILITY = 0.0
   MAX_BOLD_PROBABILITY = 1.0
@@ -51,7 +51,7 @@ class MatrixModel
   MAX_ROWS = 100
   MIN_DURATION = 1
 
-  def initialize(columns: 80, rows: 24, speed: 0.1, bold_probability: 0.1, fade_probability: 0.05, duration: nil,
+  def initialize(columns: 80, rows: 24, speed: 0.5, bold_probability: 0.1, fade_probability: 0.05, duration: nil,
                  bold_enabled: true, fade_enabled: true, speed_variation_enabled: true, random_bold_enabled: true, random_fade_enabled: true)
     @columns = columns
     @rows = rows
