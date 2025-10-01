@@ -73,7 +73,11 @@ class MatrixView
       sleep(0.07)
     end
     if version_check_result
-      puts "\n\n" + version_check_result.to_s
+      version_check_text = "\n\n#{version_check_result}"
+      version_check_text.each_char do |char|
+        print char.colorize(MATRIX_COLOR).bold
+        sleep(0.05)
+      end
       sleep(3)
     else
       sleep(2.5)
