@@ -74,14 +74,14 @@ class MatrixController
             os_version
           end
           sys_seconds = begin
-            if os_friendly == "Windows"
+            if os_friendly == "Microsoft Windows"
               require 'win32ole'
               wmi = WIN32OLE.connect("winmgmts://")
               os = wmi.ExecQuery("select * from Win32_OperatingSystem").each.first
               last_boot = os.LastBootUpTime
               boot_time = Time.new(last_boot[0..3], last_boot[4..5], last_boot[6..7], last_boot[8..9], last_boot[10..11], last_boot[12..13])
               (Time.now - boot_time).to_i
-            elsif os_friendly == "macOS" || os_friendly == "Linux"
+            elsif os_friendly == "Apple macOS" || os_friendly == "GNU/Linux"
               if File.exist?('/proc/uptime')
                 IO.read('/proc/uptime').split[0].to_i
               else

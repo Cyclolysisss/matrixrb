@@ -11,8 +11,13 @@ begin
   require 'io/console'
   require 'colorize'
   require 'yaml'
+  require 'win32ole' if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
 rescue LoadError => e
-  puts "Required gem missing: #{e.message}. Please install the required gems by running 'gem install io-console colorize yaml'."
+  if RUBY_PLATFORM =~ /mswin|mingw|cygwin/ && e.message.include?('win32ole')
+    puts "Required gem missing: #{e.message}. Please install the required gems by running 'gem install io-console colorize yaml win32ole'."
+  else
+    puts "Required gem missing: #{e.message}. Please install the required gems by running 'gem install io-console colorize yaml'."
+  end
   exit(1)
 end
 
