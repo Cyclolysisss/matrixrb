@@ -77,13 +77,13 @@ class MatrixView
       print char.colorize(MATRIX_COLOR).bold
       sleep(0.07)
     end
+    epilepsy_warning_text = "\n\n!! Warning !!: I do not recommend setting speed below 0.5 if you are prone to seizures or epilepsy !! I disclaim all responsibility for any health issues caused by using this program !!"
+    print epilepsy_warning_text.colorize(:red).bold
+    sleep(4)
     if version_check_result
       version_check_text = "\n\n#{version_check_result}"
-      version_check_text.each_char do |char|
-        print char.colorize(MATRIX_COLOR).bold
-        sleep(0.05)
-      end
-      sleep(3)
+      print version_check_text.colorize(MATRIX_COLOR).bold
+      sleep(4)
     else
       sleep(2.5)
     end
