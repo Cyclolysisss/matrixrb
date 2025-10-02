@@ -1,7 +1,12 @@
-require 'yaml'
+if $0 == __FILE__
+  warn "This file is intended to be used as part of the MatrixRB program and should not be run directly. please run 'ruby main.rb' instead."
+  exit 1
+end
+
 # matrix_model.rb
 # Model: Handles matrix state, settings, and update logic
 
+require 'yaml'
 require 'securerandom'
 
 class MatrixModel

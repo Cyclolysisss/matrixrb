@@ -1,3 +1,8 @@
+if $0 == __FILE__
+  warn "This file is intended to be used as part of the MatrixRB program and should not be run directly. please run 'ruby main.rb' instead."
+  exit 1
+end
+
 # matrix_controller.rb
 # Controller: Handles user input, program flow, and coordination between model and view
 
@@ -6,7 +11,7 @@ require_relative 'matrix_view'
 require 'io/console'
 
 class MatrixController
-  VERSION = '1.1'
+  VERSION = '1.1.1'
   CREATOR = 'Cyclolysis'
   PROGRAM_NAME = 'MatrixRB'
 
