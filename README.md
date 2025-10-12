@@ -35,8 +35,6 @@
 
 ```ruby main.rb```
 
-## Usage
-Follow the on-screen prompts to perform matrix operations. You can navigate through the menu to select different operations and settings.
 ## Configuration
 Configuration settings are saved in config.yaml. You can modify this file to change default settings such as matrix size, color theme, and speed.
 ## Contributing
